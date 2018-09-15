@@ -17,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpSession;
 import java.io.*;
 import java.util.Base64;
+import java.util.HashMap;
 
 
 @Controller
@@ -58,7 +59,25 @@ public class UserController {
     @RequestMapping(value = "/signup", method = RequestMethod.POST)
     public String signUpUser(@RequestParam("username") String username,
                              @RequestParam("password") String password,
-                               HttpSession session) {
+                               HttpSession session, Model model) {
+
+        //Checking if user already registered.
+        HashMap<String, String> errors = new HashMap<String, String>();
+        if(userService.getByName(username)!=null){
+
+            errors.put("username","username has been registered");
+            model.addAttribute("errors",errors);
+
+        }
+
+        //validating the length of the input string. For username and password length should be greater then 6.
+
+        else if (username.length() < 6 && password.length() < 6) {
+            errors.put("username", "needs to be 6 characters or longer");
+            errors.put("password", "needs to be 6 characters or longer");
+            model.addAttribute("errors", errors);
+        }
+
         // We'll first assign a default photo to the user
         ProfilePhoto photo = new ProfilePhoto();
         profilePhotoService.save(photo);

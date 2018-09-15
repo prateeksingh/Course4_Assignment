@@ -24,6 +24,26 @@ public class ImageManager extends SessionManager {
         return images;
     }
 
+
+    public Image getImageById (final int id) {
+        Session session = openSession();
+        try {
+            Image image = (Image)session.createCriteria(Image.class)
+                    .add(Restrictions.eq("id", id))
+                    .uniqueResult();
+            Hibernate.initialize(image.getTags());
+            Hibernate.initialize(image.getUser());
+            Hibernate.initialize(image.getUser().getProfilePhoto());
+            commitSession(session);
+            return image;
+        } catch(HibernateException e) {
+            System.out.println("unable to get an image by id");
+        }
+        return null;
+    }
+
+
+
     /**
      * This method retrieves an image by its title
      *
